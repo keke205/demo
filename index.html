@@ -27,23 +27,23 @@
     <section id="view-home" class="view" aria-labelledby="home-title">
       <div class="hero">
         <div>
-          <div class="eyebrow">面向大学生及青年群体 · 项目概念展示</div>
-          <h1 id="home-title">每期看着不多，<br><em>未来哪月最紧？</em></h1>
-          <p class="hero-copy">把一笔分期放进未来的收入和支出里，比较“一次付清”和“分期支付”两条现金流。看清总费用，也看清资金压力发生的时间。</p>
-          <button type="button" id="start-button" class="button button-primary">开始体验 <span aria-hidden="true">→</span></button>
+          <div class="eyebrow">分期现金流对比工具</div>
+          <h1 id="home-title">先算总成本，<br><em>再看哪个月最紧。</em></h1>
+          <p class="hero-copy">选择一笔演示分期，填入未来收支，对照一次性支付和分期支付后的逐月余额。</p>
+          <button type="button" id="start-button" class="button button-primary">选择演示案例 <span aria-hidden="true">→</span></button>
         </div>
         <div class="hero-card" aria-label="产品可回答的三个问题">
-          <div class="hero-card-head"><span class="small-dot"></span> 这面镜子看什么</div>
+          <div class="hero-card-head"><span class="small-dot"></span> 你会得到</div>
           <div class="hero-question"><span>01</span><strong>这笔分期总共多付多少？</strong></div>
           <div class="hero-question"><span>02</span><strong>未来每个月还剩多少？</strong></div>
           <div class="hero-question"><span>03</span><strong>哪一个月最需要留意？</strong></div>
-          <p>提供信息和压力提示，由你自行决定。它不推荐借款。</p>
+          <p>这里只做情景计算，不推荐借款，也不连接任何银行账户。</p>
         </div>
       </div>
-      <div class="feature-grid">
-        <article class="feature"><span class="feature-num">01</span><h3>先确认方案</h3><p>金额、期数和费用由你确认。公开基准与模拟数据分开标记。</p></article>
-        <article class="feature"><span class="feature-num">02</span><h3>再放进生活</h3><p>用模拟的收入、生活费和特殊支出，组成未来逐月收支。</p></article>
-        <article class="feature"><span class="feature-num">03</span><h3>最后看差别</h3><p>两条余额线并排，指出最低月份及其形成原因。</p></article>
+      <div class="feature-grid" aria-label="使用顺序">
+        <article class="feature"><span class="feature-num">01</span><div><h3>确认方案</h3><p>金额、期数和费用</p></div></article>
+        <article class="feature"><span class="feature-num">02</span><div><h3>填写收支</h3><p>期初余额和逐月收支</p></div></article>
+        <article class="feature"><span class="feature-num">03</span><div><h3>查看对比</h3><p>现金流、最低余额和月份差额</p></div></article>
       </div>
     </section>
 
@@ -77,7 +77,7 @@
     <section id="view-budget" class="view" hidden aria-labelledby="budget-title">
       <div class="section-heading"><div><div class="eyebrow">步骤 03 / 04</div><h1 id="budget-title">把分期放进未来收支</h1><p>以下是可修改的演示数据。测试时请使用模拟情景，不填写真实收入或负债。</p></div></div>
       <div class="panel budget-top"><label>期初可用余额 <span>元</span><input id="opening" type="number" inputmode="decimal" step="0.01" autocomplete="off"></label><div class="budget-tip">每月月末余额 = 上月余额 + 收入 − 固定支出 − 特殊支出 − 本次购买付款</div></div>
-      <div class="panel table-panel"><div class="table-title"><h2>逐月演示收支</h2><p>按你选择的期数显示。可调整任意月份，看看压力月份会不会变化。</p></div><div class="table-scroll"><table class="input-table"><thead><tr><th>月份</th><th>预计收入（元）</th><th>固定支出（元）</th><th>特殊支出（元）</th></tr></thead><tbody id="budget-rows"></tbody></table></div></div>
+      <div class="panel table-panel"><div class="table-title"><div><h2>逐月演示收支</h2><p>可调整任意月份，重新计算后查看压力月份变化。</p></div><div class="table-tools" aria-label="批量编辑收支"><button type="button" id="copy-income" class="text-button">收入沿用首月</button><button type="button" id="copy-fixed" class="text-button">固定支出沿用首月</button><button type="button" id="clear-special" class="text-button">清空特殊支出</button><button type="button" id="reset-budget" class="text-button">撤销本页修改</button></div></div><div class="table-scroll"><table class="input-table"><thead><tr><th>月份</th><th>预计收入（元）</th><th>固定支出（元）</th><th>特殊支出（元）</th></tr></thead><tbody id="budget-rows"></tbody></table></div></div>
       <div id="budget-error" class="error" role="alert" hidden></div>
       <div class="action-row"><button type="button" class="button button-ghost" data-go="offer">返回方案</button><button type="button" id="calculate-button" class="button button-primary">查看两种支付方式 <span aria-hidden="true">→</span></button></div>
     </section>
@@ -93,13 +93,14 @@
       </div>
       <div class="panel pressure-panel"><div><div class="eyebrow">现金流压力镜</div><h2 id="pressure-title">—</h2><p id="pressure-copy">—</p></div><div class="pressure-side"><span>一次性支付最低余额</span><strong id="cash-min">—</strong><span>分期支付最低余额</span><strong id="installment-min">—</strong></div></div>
       <div class="panel chart-panel"><div class="chart-header"><div><h2>两种付款方式的月末余额</h2><p>折线越低，按本情景可用资金越少；低于零表示模拟资金缺口。</p></div><div class="legend"><span><i class="legend-line cash"></i> 一次性支付</span><span><i class="legend-line installment"></i> 分期支付</span></div></div><div id="chart" class="chart" role="img" aria-label="两种付款方式的逐月余额折线图"></div></div>
+      <div class="panel month-compare"><div><label for="compare-month">指定月份对比</label><select id="compare-month" aria-label="选择要比较的月份"></select></div><div class="compare-value"><span>一次性支付后</span><strong id="compare-cash">—</strong></div><div class="compare-value"><span>分期支付后</span><strong id="compare-installment">—</strong></div><div class="compare-value compare-difference"><span>两者相差</span><strong id="compare-difference">—</strong></div></div>
       <div class="panel table-panel"><div class="table-title"><h2>逐月核对</h2><p>保留表格，便于复核图表中的每一个数。</p></div><div class="table-scroll"><table class="result-table"><thead><tr><th>月份</th><th>当月收入</th><th>固定+特殊支出</th><th>一次性付款</th><th>分期付款</th><th>一次性月末余额</th><th>分期月末余额</th></tr></thead><tbody id="result-rows"></tbody></table></div></div>
       <div class="explain-grid"><article class="panel"><h2>为什么这个月压力大？</h2><p id="why-pressure">—</p></article><article class="panel"><h2>这两种方式的取舍</h2><p id="tradeoff">—</p></article></div>
-      <div class="action-row"><button type="button" class="button button-ghost" data-go="offer">换个案例</button><button type="button" id="reset-button" class="button button-primary">重新体验 <span aria-hidden="true">↗</span></button></div>
+      <div class="action-row"><button type="button" class="button button-ghost" data-go="offer">换个案例</button><button type="button" id="reset-button" class="button button-primary">重新体验</button></div>
     </section>
   </main>
 
-  <footer class="site-footer wrap"><div><strong>分期明白账</strong><p>大学生金融科技创新项目 · 轻量级静态交互原型</p></div><p>演示数据仅供产品功能展示，不代表工商银行实际报价或真实用户情况。<br>无后台、无账户连接、无数据上传；关闭页面后输入不保存。</p></footer>
+  <footer class="site-footer wrap"><div><strong>分期明白账</strong><p>大学生金融科技创新项目 · 轻量级静态交互原型</p><a href="baseline.html">打开真人测试原始信息页</a></div><p>演示数据仅供产品功能展示，不代表工商银行实际报价或真实用户情况。<br>无后台、无账户连接、无数据上传；关闭页面后输入不保存。</p></footer>
 
   <script src="cases.js"></script>
   <script src="logic.js"></script>

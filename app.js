@@ -25,6 +25,9 @@
     for (const v of ["home", "offer", "budget", "result"]) $("view-" + v).hidden = v !== view;
     document.querySelectorAll(".step").forEach((b) => {
       b.classList.toggle("is-active", b.dataset.step === view);
+      const unavailable = (b.dataset.step === "result" && !state.result);
+      b.disabled = unavailable;
+      b.setAttribute("aria-disabled", unavailable ? "true" : "false");
       if (b.dataset.step === view) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -52,6 +55,8 @@
     $("case-source").hidden = !c || !c.sourceUrl;
     if (c && c.sourceUrl) $("case-source").href = c.sourceUrl;
     $("offer-error").hidden = true;
+    const resultStep = document.querySelector('.step[data-step="result"]');
+    if (resultStep) { resultStep.disabled = !state.result; resultStep.setAttribute("aria-disabled", state.result ? "false" : "true"); }
   }
 
   function readRequired(id, label, allowNegative) {
@@ -80,9 +85,12 @@
   function markCustom() {
     if (state.caseId === "custom") return;
     state.caseId = "custom";
+    state.result = null;
     document.querySelectorAll(".case-button").forEach((b) => { b.classList.remove("is-selected"); b.setAttribute("aria-pressed", "false"); });
     $("case-provenance").textContent = "当前数字由你在本地修改，现按自定义模拟案例计算，不对应任何银行或平台的实际报价。";
     $("case-source").hidden = true;
+    const resultStep = document.querySelector('.step[data-step="result"]');
+    if (resultStep) { resultStep.disabled = true; resultStep.setAttribute("aria-disabled", "true"); }
   }
 
   function makeCell(value, field, index) {
@@ -104,6 +112,15 @@
       body.append(tr);
     });
     $("budget-error").hidden = true;
+  }
+
+  function setColumn(field, value) {
+    for (const input of $("budget-rows").querySelectorAll(`[data-field="${field}"]`)) input.value = value;
+    $("budget-error").hidden = true;
+  }
+
+  function restoreBudget() {
+    renderBudget();
   }
 
   function readBudget() {
@@ -153,6 +170,26 @@
       body.append(tr);
     });
     renderChart(r);
+    const monthSelect = $("compare-month");
+    const previousMonth = Number(monthSelect.value) || r.installmentMin.month;
+    monthSelect.replaceChildren(...r.rows.map((row) => {
+      const option = document.createElement("option");
+      option.value = row.month;
+      option.textContent = "第 " + row.month + " 月";
+      return option;
+    }));
+    monthSelect.value = String(Math.min(previousMonth, r.terms));
+    renderMonthComparison();
+  }
+
+  function renderMonthComparison() {
+    if (!state.result) return;
+    const month = Number($("compare-month").value) || 1;
+    const row = state.result.rows[month - 1];
+    const difference = row.installmentBalance - row.cashBalance;
+    $("compare-cash").textContent = money(row.cashBalance);
+    $("compare-installment").textContent = money(row.installmentBalance);
+    $("compare-difference").textContent = money(Math.abs(difference)) + (difference === 0 ? "" : difference > 0 ? "（分期更高）" : "（一次性更高）");
   }
 
   function renderChart(r) {
@@ -181,6 +218,11 @@
     $("offer-next").addEventListener("click", () => { try { readOffer(); renderBudget(); show("budget"); } catch (e) { showError("offer-error", e); } });
     $("calculate-button").addEventListener("click", () => { try { readBudget(); state.result = logic.calculate({ price: state.price, terms: state.terms, totalFee: state.totalFee, opening: state.opening, months: state.months }); renderResult(); show("result"); } catch (e) { showError("budget-error", e); } });
     $("edit-budget").addEventListener("click", () => show("budget"));
+    $("copy-income").addEventListener("click", () => { const first = $("budget-rows").querySelector('[data-field="income"]'); if (first) setColumn("income", first.value); });
+    $("copy-fixed").addEventListener("click", () => { const first = $("budget-rows").querySelector('[data-field="fixed"]'); if (first) setColumn("fixed", first.value); });
+    $("clear-special").addEventListener("click", () => setColumn("special", 0));
+    $("reset-budget").addEventListener("click", restoreBudget);
+    $("compare-month").addEventListener("change", renderMonthComparison);
     $("reset-button").addEventListener("click", () => { cloneCase(cases[0]); renderOffer(); renderBudget(); show("home"); });
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(b.dataset.go)));
     document.querySelectorAll(".step").forEach((b) => b.addEventListener("click", () => { if (b.dataset.step === "budget") { try { readOffer(); renderBudget(); } catch (e) { show("offer"); showError("offer-error", e); return; } } show(b.dataset.step); }));
